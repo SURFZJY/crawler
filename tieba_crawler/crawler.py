@@ -1,17 +1,18 @@
+#!/usr/bin/python
 # -*- coding:utf-8 -*-
 import requests
 import urllib.request
-import os
+import os, io, sys
 from bs4 import BeautifulSoup
 
 class Crawler:
 
     # 初始化帖子的地址
-    def __init__(self):
-        self.siteURL = 'http://tieba.baidu.com/p/4317998534'
+    def __init__(self, url):
+        self.siteURL = str(url)
 
     # 获得帖子的HTML文本
-    def getText(self,pageIndex):
+    def getText(self, pageIndex):
         url = self.siteURL + '?pn=' + str(pageIndex)
         source_code = requests.get(url)
         plain_text = source_code.text
@@ -20,7 +21,7 @@ class Crawler:
     # 获取楼主的昵称
     def getName(self):
         html_text = self.getText(1)
-        soup = BeautifulSoup(html_text)
+        soup = BeautifulSoup(html_text, "html.parser")
         for link in soup.find_all('a',{'alog-group':'p_author'}):
             landlord_name = link.string
             return landlord_name
@@ -32,7 +33,7 @@ class Crawler:
     # 获取帖子页数
     def getPagenumber(self):
         html_text = self.getText(1)
-        soup = BeautifulSoup(html_text)
+        soup = BeautifulSoup(html_text, "html.parser")
         page_list = list()
         for link in soup.find_all('span',{'class':'red'}):
             pagenumber = link.string
@@ -59,6 +60,7 @@ class Crawler:
 
     # 下载图片并按顺序依次编号
     def imageDownload(self):
+        print('Downloading Begin! ')
         pageIndex = 1
         name = 1
         max_page = self.getPagenumber()
@@ -67,7 +69,7 @@ class Crawler:
         cur_path = os.path.abspath('.')
         while pageIndex <= max_page:
             html_text = self.getText(pageIndex)
-            soup = BeautifulSoup(html_text)
+            soup = BeautifulSoup(html_text , "html5lib")
             for link in soup.find_all('img',{'class':'BDE_Image'}):
                 object_url = link.get('src')
                 down_dir = cur_path+ '\\' + landlord_name + '\\'
@@ -76,6 +78,8 @@ class Crawler:
             pageIndex += 1
         print('Downloading finished!')
 
-crawler = Crawler()
+url = 'http://tieba.baidu.com/p/2789324254'
+crawler = Crawler(url)
 crawler.imageDownload()
+
 
