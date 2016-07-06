@@ -78,7 +78,7 @@ class Crawler:
             pageIndex += 1
         print('Downloading finished!')
 
-url = 'http://tieba.baidu.com/p/2789324254'
+url = ''
 crawler = Crawler(url)
 crawler.imageDownload()
 
